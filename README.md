@@ -1,38 +1,23 @@
-# create-svelte
+This repository should help you reproducing https://github.com/sveltejs/kit/issues/12580.
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## How to reproduce
 
-## Creating a project
+1. clone, `npm install`
+2. `npm run dev`
+3. Request the development server (e. g. in a browser)
+4. See the error message:
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+```
+[vite] Error when evaluating SSR module /src/routes/+layout.ts:
+|- ReferenceError: localStorage is not defined
+    at /var/www/my-app/src/routes/+layout.ts:4:1
+    at instantiateModule (file:///var/www/my-app/node_modules/vite/dist/node/chunks/dep-Cy9twKMn.js:52858:11)
 ```
 
-## Developing
+## The problem
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Svelte runs the `+layout.ts` file on server-side, even though SSR is explicitly disabled.
 
-```bash
-npm run dev
+This can't be avoided, as SSR is disbaled as late as in the `+layout.ts` file itself.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+We either need a way to disable SSR from the begin with, or another way to add layout code that won't be run on server side.
